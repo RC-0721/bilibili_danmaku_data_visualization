@@ -1,0 +1,19 @@
+syntax = "proto3";
+package bilibili.community.service.dm.v1;
+
+message DmSegMobileReply { repeated DanmakuElem elems = 1; }
+message DanmakuElem {
+    int64  id = 1;       // 弹幕ID
+    int32  progress = 2; // 视频内出现时间（毫秒）
+    int32  mode = 3;     // 弹幕类型
+    int32  fontsize = 4; // 字号
+    uint32 color = 5;    // 颜色
+    string midHash = 6;  // 用户Hash
+    string content = 7;  // 弹幕内容
+    int64  ctime = 8;    // 发送时间戳
+    int32  weight = 9;   // 权重
+    string action = 10;
+    int32  pool = 11;    // 弹幕池
+    string idStr = 12;
+    int32  attr = 13;
+}
