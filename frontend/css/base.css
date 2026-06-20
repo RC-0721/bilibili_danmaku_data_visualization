@@ -1,0 +1,54 @@
+:root {
+  /* 全局设计变量：颜色、背景和阴影。 */
+  /* Global design tokens: colors, backgrounds, and shadow. */
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --text: #172033;
+  --muted: #657086;
+  --line: #dbe2ee;
+  --primary: #1f7a8c;
+  --primary-dark: #155e6d;
+  --accent: #bf5b45;
+  --shadow: 0 12px 30px rgba(31, 47, 70, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+
+[v-cloak] {
+  display: none;
+}
+
+#app {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+label {
+  color: #354057;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+select,
+input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+  padding: 0 10px;
+  font: inherit;
+}

@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>弹幕数据分析</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <!-- 弹幕数据分析单页应用根节点。 -->
+    <!-- Root node for the danmaku analytics single-page app. -->
+    <div id="app" v-cloak>
+      <aside class="sidebar">
+        <!-- 左侧控制区：视频、日期和图表类型。 -->
+        <!-- Left control panel: video, date range, and chart mode. -->
+        <div class="brand">
+          <div class="brand-mark">DM</div>
+          <div>
+            <h1>弹幕数据分析</h1>
+            <p>按视频、日期与统计类型查看弹幕变化</p>
+          </div>
+        </div>
+
+        <section class="control-group" v-if="analysisMode !== 'similarity' && analysisMode !== 'parallel'">
+          <label for="video">视频</label>
+          <select id="video" v-model="selectedBvid">
+            <option v-for="video in videos" :key="video.bvid" :value="video.bvid">
+              {{ video.title }}
+            </option>
+          </select>
+        </section>
+
+        <section class="control-group" v-if="analysisMode === 'similarity'">
+          <label for="similarityVideos">相似度视频</label>
+          <select id="similarityVideos" class="multi-select" multiple v-model="selectedSimilarityBvids">
+            <option v-for="video in videos" :key="video.bvid" :value="video.bvid">
+              {{ video.title }}
+            </option>
+          </select>
+          <p class="helper-text">已选择 {{ selectedSimilarityBvids.length }}/10 个视频，按 Ctrl 可多选。</p>
+        </section>
+
+        <section class="control-group" v-if="analysisMode === 'parallel'">
+          <label for="parallelVideos">画像视频</label>
+          <select id="parallelVideos" class="multi-select" multiple v-model="selectedParallelBvids">
+            <option v-for="video in videos" :key="video.bvid" :value="video.bvid">
+              {{ video.title }}
+            </option>
+          </select>
+          <p class="helper-text">已选择 {{ selectedParallelBvids.length }}/20 个视频，按 Ctrl 可多选。</p>
+        </section>
+
+        <section class="control-group" v-if="analysisMode === 'similarity'">
+          <label>相似度类型</label>
+          <div class="segmented segmented-four">
+            <button :class="{ active: similarityMetric === 'combined' }" @click="similarityMetric = 'combined'">综合</button>
+            <button :class="{ active: similarityMetric === 'trend' }" @click="similarityMetric = 'trend'">趋势</button>
+            <button :class="{ active: similarityMetric === 'sentiment' }" @click="similarityMetric = 'sentiment'">情绪</button>
+            <button :class="{ active: similarityMetric === 'high_energy' }" @click="similarityMetric = 'high_energy'">高能</button>
+          </div>
+        </section>
+
+        <section class="video-card" v-if="selectedVideo && analysisMode !== 'similarity' && analysisMode !== 'parallel'">
+          <img :src="selectedVideo.coverUrl || selectedVideo.cover" :alt="selectedVideo.title" />
+          <div>
+            <strong>{{ selectedVideo.title }}</strong>
+            <span>{{ selectedVideo.bvid }}</span>
+          </div>
+        </section>
+
+        <section class="control-grid" v-if="analysisMode !== 'similarity' && analysisMode !== 'parallel'">
+          <div class="control-group">
+            <label for="startDate">开始日期</label>
+            <input id="startDate" type="date" v-model="startDate" :min="minDate" :max="endDate" />
+          </div>
+          <div class="control-group">
+            <label for="endDate">结束日期</label>
+            <input id="endDate" type="date" v-model="endDate" :min="startDate" :max="maxDate" />
+          </div>
+        </section>
+
+        <section class="control-group">
+          <label>统计类型</label>
+          <div class="segmented segmented-five">
+            <button :class="{ active: analysisMode === 'danmaku' }" @click="analysisMode = 'danmaku'">
+              弹幕数量
+            </button>
+            <button :class="{ active: analysisMode === 'heatmap' }" @click="analysisMode = 'heatmap'">
+              进度热力
+            </button>
+            <button :class="{ active: analysisMode === 'words' }" @click="analysisMode = 'words'">
+              分词统计
+            </button>
+            <button :class="{ active: analysisMode === 'similarity' }" @click="analysisMode = 'similarity'">
+              相似矩阵
+            </button>
+            <button :class="{ active: analysisMode === 'parallel' }" @click="analysisMode = 'parallel'">
+              视频画像
+            </button>
+          </div>
+        </section>
+
+        <section class="control-group" v-if="analysisMode === 'parallel'">
+          <label>数值模式</label>
+          <div class="segmented">
+            <button :class="{ active: parallelValueMode === 'raw' }" @click="parallelValueMode = 'raw'">原始值</button>
+            <button :class="{ active: parallelValueMode === 'log' }" @click="parallelValueMode = 'log'">对数缩放</button>
+          </div>
+        </section>
+
+        <section class="control-group" v-if="analysisMode === 'parallel'">
+          <label>画像维度</label>
+          <div class="check-grid">
+            <label v-for="dimension in parallelDimensions" :key="dimension.key" class="check-item">
+              <input type="checkbox" :value="dimension.key" v-model="selectedParallelDimensionKeys" />
+              <span>{{ dimension.label }}</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="control-group" v-if="analysisMode === 'danmaku'">
+          <label>统计口径</label>
+          <div class="segmented">
+            <button :class="{ active: metric === 'daily' }" @click="metric = 'daily'">每日新增</button>
+            <button :class="{ active: metric === 'cumulative' }" @click="metric = 'cumulative'">累计数量</button>
+          </div>
+        </section>
+
+        <section class="control-group" v-if="analysisMode === 'heatmap'">
+          <label>播放窗口</label>
+          <div class="segmented segmented-four">
+            <button :class="{ active: heatmapWindowSeconds === 5 }" @click="heatmapWindowSeconds = 5">5 秒</button>
+            <button :class="{ active: heatmapWindowSeconds === 10 }" @click="heatmapWindowSeconds = 10">10 秒</button>
+            <button :class="{ active: heatmapWindowSeconds === 30 }" @click="heatmapWindowSeconds = 30">30 秒</button>
+            <button :class="{ active: heatmapWindowSeconds === 60 }" @click="heatmapWindowSeconds = 60">60 秒</button>
+          </div>
+        </section>
+
+        <section class="control-group" v-if="analysisMode === 'heatmap'">
+          <label>颜色模式</label>
+          <div class="segmented">
+            <button :class="{ active: heatmapNormalize === 'none' }" @click="heatmapNormalize = 'none'">绝对数量</button>
+            <button :class="{ active: heatmapNormalize === 'date' }" @click="heatmapNormalize = 'date'">按日期归一</button>
+          </div>
+        </section>
+
+        <section class="control-group" v-if="analysisMode === 'danmaku'">
+          <label>聚合粒度</label>
+          <div class="segmented segmented-three">
+            <button :class="{ active: bucket === 'day' }" @click="bucket = 'day'">日</button>
+            <button :class="{ active: bucket === 'week' }" @click="bucket = 'week'">周</button>
+            <button :class="{ active: bucket === 'month' }" @click="bucket = 'month'">月</button>
+          </div>
+        </section>
+
+      </aside>
+
+      <main class="workspace">
+        <!-- 右侧工作区：指标卡和 ECharts 图表。 -->
+        <!-- Right workspace: KPI cards and ECharts chart. -->
+        <header class="topbar">
+          <div>
+            <h2>{{ workspaceTitle }}</h2>
+            <p>{{ headerSubtitle }}</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-button" @click="openPlayer" title="打开播放器">▶</button>
+            <button class="icon-button" @click="resetRange" title="重置日期范围">↺</button>
+          </div>
+        </header>
+
+        <section class="kpis">
+          <div>
+            <span>{{ kpiLabels.first }}</span>
+            <strong>{{ kpiValues.first }}</strong>
+          </div>
+          <div>
+            <span>{{ kpiLabels.second }}</span>
+            <strong>{{ kpiValues.second }}</strong>
+          </div>
+          <div>
+            <span>{{ kpiLabels.third }}</span>
+            <strong>{{ kpiValues.third }}</strong>
+          </div>
+          <div>
+            <span>{{ kpiFourthLabel }}</span>
+            <strong>{{ kpiFourthValue }}</strong>
+          </div>
+        </section>
+
+        <section class="indicator-notes" aria-label="指标说明">
+          <div v-for="note in indicatorNotes" :key="note.title">
+            <strong>{{ note.title }}</strong>
+            <span>{{ note.body }}</span>
+          </div>
+        </section>
+
+        <section class="chart-panel">
+          <div class="status-row" v-if="loading || error">
+            <span v-if="loading">正在加载数据...</span>
+            <span class="error" v-if="error">{{ error }}</span>
+          </div>
+          <div ref="chartEl" class="chart"></div>
+        </section>
+      </main>
+
+      <section
+        class="floating-player"
+        :class="{ minimized: playerMinimized }"
+        v-if="playerOpen && selectedVideo"
+      >
+        <header class="player-header">
+          <div>
+            <strong>{{ playerTitle }}</strong>
+            <span>{{ selectedVideo?.bvid }}</span>
+          </div>
+          <div class="player-actions">
+            <button @click="playerMinimized = !playerMinimized" :title="playerMinimized ? '展开播放器' : '最小化播放器'">
+              {{ playerMinimized ? '□' : '—' }}
+            </button>
+            <button @click="playerOpen = false" title="关闭播放器">×</button>
+          </div>
+        </header>
+        <div class="player-body">
+          <iframe
+            v-if="playerSrc"
+            :src="playerSrc"
+            :title="playerTitle"
+            scrolling="no"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </section>
+    </div>
+
+    <script src="./vendor/vue.global.prod.js"></script>
+    <script src="./vendor/echarts.min.js"></script>
+    <script src="./vendor/echarts-wordcloud.min.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/state.js"></script>
+    <script src="./js/computed.js"></script>
+    <script src="./js/watchers.js"></script>
+    <script src="./js/data_methods.js"></script>
+    <script src="./js/chart_methods.js"></script>
+    <script src="./js/chart_trend_word.js"></script>
+    <script src="./js/chart_heatmap_similarity.js"></script>
+    <script src="./js/chart_parallel.js"></script>
+    <script src="./js/ui_methods.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

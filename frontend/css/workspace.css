@@ -1,0 +1,118 @@
+.workspace {
+  /* 主工作区承载标题、指标和图表。 */
+  /* Main workspace for title, KPIs, and charts. */
+  min-width: 0;
+  padding: 24px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.topbar h2 {
+  font-size: 22px;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--primary-dark);
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.kpis div,
+.chart-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.kpis div {
+  padding: 16px;
+}
+
+.kpis span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.kpis strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 24px;
+}
+
+.indicator-notes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.indicator-notes div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcff;
+}
+
+.indicator-notes strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #354057;
+  font-size: 13px;
+}
+
+.indicator-notes span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.chart-panel {
+  padding: 16px;
+}
+
+.status-row {
+  min-height: 24px;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.status-row .error {
+  color: var(--accent);
+}
+
+.chart {
+  /* ECharts 容器尺寸。 */
+  /* ECharts container dimensions. */
+  width: 100%;
+  height: min(68vh, 620px);
+  min-height: 420px;
+}
