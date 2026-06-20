@@ -97,7 +97,6 @@ http://127.0.0.1:8000
 | `scripts/build_high_energy_windows.py` | 构建高能片段统计表 |
 | `scripts/build_video_similarity_matrix.py` | 构建视频相似度矩阵 |
 | `scripts/build_video_parallel_stats.py` | 构建平行坐标图统计表 |
-| `scripts/export_tableau_video_profile.py` | 导出 Tableau 制图 CSV |
 
 完整参数说明见 [docs/Readme.md](docs/Readme.md)。
 
