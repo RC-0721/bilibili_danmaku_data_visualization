@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+**/node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Runtime outputs
+logs/
+backups/
+*.log
+tmp/
+output/
+
+# Local data and generated exports
+data/precious.txt
+tableau_exports/
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+*.csv
+
+# Local review / generated working files
+review_candidates/*.tsv
+custom_words/*.bak_*
+resources/text/*.bak_*
+*.bak_*
+
+# Generated presentation/report/media artifacts
+docs/*.pdf
+docs/*.pptx
+docs/*.png
+docs/*.jpg
+docs/*.jpeg
+docs/*.html
+docs/ppt_preview/
+*.mp4
+*.wav
+*.mp3
+
+# OS
+Thumbs.db
+.DS_Store
